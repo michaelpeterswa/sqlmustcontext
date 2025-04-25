@@ -16,7 +16,7 @@ var Analyzer = &analysis.Analyzer{
 }
 
 var (
-	FunctionNameBlacklist = []string{
+	disallowedMethods = []string{
 		"Exec",
 		"Ping",
 		"Prepare",
@@ -24,7 +24,7 @@ var (
 		"QueryRow",
 	}
 
-	IdentifierWhitelist = []string{
+	allowedIdentifiers = []string{
 		"db",
 		"tx",
 	}
@@ -46,10 +46,10 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		// Check if the function is a method call on a *sql.DB or *sql.Tx
 		if selExpr, ok := callExpr.Fun.(*ast.SelectorExpr); ok {
 			if ident, ok := selExpr.X.(*ast.Ident); ok {
-				if stringInStringSlice(ident.Name, IdentifierWhitelist) {
+				if SliceContains(allowedIdentifiers, ident.Name) {
 					// Check if the method name is one of the non-context methods
 					methodName := selExpr.Sel.Name
-					if stringInStringSlice(methodName, FunctionNameBlacklist) {
+					if SliceContains(disallowedMethods, methodName) {
 						pass.Reportf(callExpr.Pos(), "use %sContext instead of %s", methodName, methodName)
 						return
 					}
@@ -61,9 +61,9 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	return nil, nil
 }
 
-func stringInStringSlice(str string, blacklist []string) bool {
-	for _, b := range blacklist {
-		if str == b {
+func SliceContains[T comparable](slice []T, item T) bool {
+	for _, v := range slice {
+		if item == v {
 			return true
 		}
 	}
