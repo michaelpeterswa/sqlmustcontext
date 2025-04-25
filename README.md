@@ -2,7 +2,7 @@
 <img src=".github/images/sqlmustcontext.png" alt="sqlmustcontext logo" width="500">
 </h2>
 <h2 align="center">
-  a <code>go/analysis</code> linter to enforce that the standard library database/sql package "context" enabled functions are always called versus their non-context counterparts
+  a <code>go/analysis</code> linter to enforce that the standard library `database/sql` package's context-enabled functions are always called versus their non-context-enabled counterparts
 </h2>
 <div align="center">
 
