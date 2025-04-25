@@ -1,0 +1,35 @@
+---
+name: Upload Binary
+
+on: #  yamllint disable-line rule:truthy
+  release:
+    types:
+      - created
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-publish-binary:
+    name: Release Go Binary
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, darwin]
+        goarch: [amd64, arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      - uses: wangyoucao577/go-release-action@v1
+        with:
+          goos: ${{ matrix.goos }}
+          goarch: ${{ matrix.goarch }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          compress_assets: true
+          sha256sum: true
+          project_path: ./cmd/sqlmustcontext
