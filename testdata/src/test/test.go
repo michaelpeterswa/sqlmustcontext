@@ -5,8 +5,7 @@ import (
 	"database/sql"
 )
 
-//lint:ignore U1000 Ignoring main in this testdata
-func main() {
+func _() {
 	ctx := context.Background()
 
 	db, _ := sql.Open("sqlmustcontext", "sqlmustcontext://")
@@ -42,4 +41,42 @@ func main() {
 	tx.QueryRowContext(ctx, "select * from testdata")
 
 	_ = tx.Commit()
+}
+
+func _() {
+	ctx := context.Background()
+
+	db2, _ := sql.Open("sqlmustcontext", "sqlmustcontext://")
+
+	db2.Ping() // want "use PingContext instead of Ping"
+	db2.PingContext(ctx)
+
+	db2.Exec("select * from testdata") // want "use ExecContext instead of Exec"
+	db2.ExecContext(ctx, "select * from testdata")
+
+	db2.Prepare("select * from testdata") // want "use PrepareContext instead of Prepare"
+	db2.PrepareContext(ctx, "select * from testdata")
+
+	db2.Query("select * from testdata") // want "use QueryContext instead of Query"
+	db2.QueryContext(ctx, "select * from testdata")
+
+	db2.QueryRow("select * from testdata") // want "use QueryRowContext instead of QueryRow"
+	db2.QueryRowContext(ctx, "select * from testdata")
+
+	// transactions
+
+	tx2, _ := db2.Begin()
+	tx2.Exec("select * from testdata") // want "use ExecContext instead of Exec"
+	tx2.ExecContext(ctx, "select * from testdata")
+
+	tx2.Prepare("select * from testdata") // want "use PrepareContext instead of Prepare"
+	tx2.PrepareContext(ctx, "select * from testdata")
+
+	tx2.Query("select * from testdata") // want "use QueryContext instead of Query"
+	tx2.QueryContext(ctx, "select * from testdata")
+
+	tx2.QueryRow("select * from testdata") // want "use QueryRowContext instead of QueryRow"
+	tx2.QueryRowContext(ctx, "select * from testdata")
+
+	_ = tx2.Commit()
 }
