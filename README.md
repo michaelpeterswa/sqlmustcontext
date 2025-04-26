@@ -52,7 +52,7 @@ By enforcing the use of context-enabled functions, `sqlmustcontext` helps you wr
   For more detailed instructions, refer to the [Go installation guide](https://go.dev/doc/install).
 
 ### Testing
-This repository contains a go linter written in the go/analysis style. It has a test located at [pkg/analyzer/analyzer_test.go](pkg/analyzer/analyzer_test.go), that currently provides 99%+ test coverage.
+This repository contains a go linter written in the go/analysis style. It has a test located at [pkg/analyzer/analyzer_test.go](pkg/analyzer/analyzer_test.go), that currently provides 95%+ test coverage.
 
 Should you wish to try this linter on repositories locally, run `make install` followed by `sqlmustcontext <path to lint>`.
 

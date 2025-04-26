@@ -24,9 +24,9 @@ var (
 		"QueryRow",
 	}
 
-	allowedIdentifiers = []string{
-		"db",
-		"tx",
+	allowedTypes = []string{
+		"*database/sql.DB",
+		"*database/sql.Tx",
 	}
 )
 
@@ -46,12 +46,16 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		// Check if the function is a method call on a *sql.DB or *sql.Tx
 		if selExpr, ok := callExpr.Fun.(*ast.SelectorExpr); ok {
 			if ident, ok := selExpr.X.(*ast.Ident); ok {
-				if SliceContains(allowedIdentifiers, ident.Name) {
-					// Check if the method name is one of the non-context methods
-					methodName := selExpr.Sel.Name
-					if SliceContains(disallowedMethods, methodName) {
-						pass.Reportf(callExpr.Pos(), "use %sContext instead of %s", methodName, methodName)
-						return
+				obj := pass.TypesInfo.ObjectOf(ident)
+				if obj != nil {
+					typ := obj.Type()
+					if SliceContains(allowedTypes, typ.String()) {
+						// Check if the method name is one of the non-context methods
+						methodName := selExpr.Sel.Name
+						if SliceContains(disallowedMethods, methodName) {
+							pass.Reportf(callExpr.Pos(), "use %sContext instead of %s", methodName, methodName)
+							return
+						}
 					}
 				}
 			}
